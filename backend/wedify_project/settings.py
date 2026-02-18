@@ -78,11 +78,16 @@ DATABASES = {
 
 _db_url = os.environ.get('DATABASE_URL')
 if _db_url:
-    # Remove quotes if present
-    _db_url = _db_url.strip('"').strip("'")
-    if '://' in _db_url and _db_url.split('://')[0].isalnum():
-        DATABASES['default'] = dj_database_url.parse(_db_url)
-        DATABASES['default']['CONN_MAX_AGE'] = 600
+    try:
+        # Remove quotes if present
+        _db_url = _db_url.strip('"').strip("'")
+        if '://' in _db_url and _db_url.split('://')[0].isalnum():
+            _config = dj_database_url.parse(_db_url)
+            if _config:
+                DATABASES['default'].update(_config)
+                DATABASES['default']['CONN_MAX_AGE'] = 600
+    except Exception as e:
+        print(f"Error parsing DATABASE_URL: {e}. Falling back to SQLite.")
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -107,7 +112,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 # Use WhiteNoise's storage for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'

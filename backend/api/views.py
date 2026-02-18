@@ -10,7 +10,7 @@ from .serializers import PlannerSerializer, BookingRequestSerializer
 import stripe
 import os
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
+# stripe.api_key is set inside views that use it to prevent startup crashes if settings are missing
 
 def get_tokens_for_user(user, role='user'):
     refresh = RefreshToken.for_user(user)
@@ -66,6 +66,7 @@ class BookingRequestViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def create_payment_intent(request):
     try:
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         amount = request.data.get('amount')
         currency = request.data.get('currency', 'inr')
         
