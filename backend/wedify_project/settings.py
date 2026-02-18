@@ -68,14 +68,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'wedify_project.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/stable/ref/settings/#databases
-
+# Use SQLite by default, only use DATABASE_URL if it's valid
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+_db_url = os.environ.get('DATABASE_URL')
+if _db_url:
+    # Remove quotes if present
+    _db_url = _db_url.strip('"').strip("'")
+    if '://' in _db_url and _db_url.split('://')[0].isalnum():
+        DATABASES['default'] = dj_database_url.parse(_db_url)
+        DATABASES['default']['CONN_MAX_AGE'] = 600
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
