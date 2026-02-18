@@ -15,6 +15,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-me-now')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.render.com').split(',')
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,21 +71,11 @@ WSGI_APPLICATION = 'wedify_project.wsgi.application'
 # https://docs.djangoproject.com/en/stable/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
-
-database_url = os.environ.get('DATABASE_URL')
-if database_url and '://' in database_url:
-    try:
-        # Check if it's a valid scheme that dj_database_url supports
-        scheme = database_url.split('://')[0]
-        if scheme:
-            DATABASES['default'] = dj_database_url.config(conn_max_age=600)
-    except Exception:
-        pass # Fallback to SQLite already set above
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

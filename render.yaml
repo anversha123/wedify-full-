@@ -6,7 +6,7 @@ services:
     region: ohio
     rootDirectory: backend
     buildCommand: ./build.sh
-    startCommand: gunicorn wedify_project.wsgi:application
+    startCommand: gunicorn --worker-tmp-dir /dev/shm --log-level debug wedify_project.wsgi:application
     healthCheckPath: /admin/login/ # A safe path that exists
 
     envVars:
@@ -24,6 +24,8 @@ services:
         sync: false
       - key: STRIPE_PUBLISHABLE_KEY
         sync: false
+      - key: PYTHONPATH
+        value: .
 
   - type: static
     name: wedify-frontend
