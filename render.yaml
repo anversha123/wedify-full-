@@ -7,6 +7,7 @@ services:
     rootDirectory: backend
     buildCommand: ./build.sh
     startCommand: gunicorn wedify_project.wsgi:application
+    healthCheckPath: /admin/login/ # A safe path that exists
 
     envVars:
       - key: DEBUG
@@ -24,7 +25,26 @@ services:
       - key: STRIPE_PUBLISHABLE_KEY
         sync: false
 
+  - type: static
+    name: wedify-frontend
+    env: static
+    plan: free
+    region: ohio
+    rootDirectory: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: wedify-backend
+          property: host
+        # Note: We'll need to append /api to the host manually or in the code
+        # Actually, fromService: host gives the URL like https://wedify-backend.onrender.com
+        # Vite will see this at build time if we use it correctly.
+
 databases:
   - name: wedify-db
     plan: free
     region: ohio
+
