@@ -68,12 +68,21 @@ WSGI_APPLICATION = 'wedify_project.wsgi.application'
 # https://docs.djangoproject.com/en/stable/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        conn_health_checks=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+database_url = os.environ.get('DATABASE_URL')
+if database_url and '://' in database_url:
+    try:
+        # Check if it's a valid scheme that dj_database_url supports
+        scheme = database_url.split('://')[0]
+        if scheme:
+            DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+    except Exception:
+        pass # Fallback to SQLite already set above
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
