@@ -18,4 +18,10 @@ if path not in sys.path:
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wedify_project.settings')
 
-application = get_wsgi_application()
+try:
+    application = get_wsgi_application()
+except Exception:
+    import traceback
+    print("CRITICAL: Failed to load WSGI application")
+    traceback.print_exc()
+    raise
