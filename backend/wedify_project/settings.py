@@ -65,9 +65,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'wedify_project.wsgi.application'
 
 # Database
+# https://docs.djangoproject.com/en/stable/ref/settings/#databases
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
         conn_health_checks=True
     )
